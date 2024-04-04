@@ -62,17 +62,49 @@ export default function Home({ accessToken }: { accessToken: string }) {
     }
   }
 
+  async function createProduct() {
+    try {
+      const newProduct:any = {
+        codbarra: '312831283', // Substitua pelos valores adequados
+        custo: 1, // Defina um valor válido para o custo
+        estoque: 1, // Defina um valor válido para o estoque
+        margem: 1, // Defina um valor válido para a margem
+        nome: 'Criado pelo APP', // Nome do novo produto
+        user: 'b6h6j6yezg7drz1', // ID do usuário
+        venda: 1 // Defina um valor válido para a venda
+      };
+  
+      const response = await axios.post('https://treina1.delphosautomacao.com/api/collections/produtos/records', newProduct, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`
+        }
+      });
+  
+      console.log('Novo produto criado:', response.data);
+  
+      // Atualize a lista de produtos após criar o novo produto
+      fetchProducts(user?.token);
+    } catch (error) {
+      console.error('Erro ao criar produto:', error);
+    }
+  }
+  
   return (
     <main className="flex flex-col items-center justify-start gap-5 bg-white w-full h-screen">
-      <header className="h-20 bg-white w-full flex flex-col items-center justify-center gap-2">
+      <header className="h-20 min-h-20 bg-white w-full flex flex-col items-center justify-center gap-2">
         <h1 className="text-[#4de577] font-bold text-2xl">Delphos Automação</h1>
+      </header>
         <div className='flex gap-3 '>
           <a href="/produtos">Produtos</a>
           <a href="/pedidos">Pedidos</a>
         </div>
-      </header>
       <div className="flex flex-col w-full items-center justify-center gap-4 px-5">
-        <p>Página de Produtos</p>
+        <p className='font-bold'>Página de Produtos</p>
+        <div className=' flex items-center justify-center w-full'>
+          <button 
+          onClick={createProduct}
+          className='bg-[#4de577] rounded-md px-5 py-2 '> Criar Produto</button>
+        </div>
         <div className="flex flex-col items-center justify-center w-full h-auto gap-4">
           {products?.map((product) => (
             <div key={product.id} className="w-full border p-4 rounded-md shadow-md">
