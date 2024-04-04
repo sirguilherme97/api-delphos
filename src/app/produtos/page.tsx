@@ -102,7 +102,13 @@ export default function Home({ accessToken }: { accessToken: string }) {
     // Aqui você pode enviar os dados do produto para onde quiser, como uma função de criação de produto
     console.log(formData);
     createProduct(formData)
-    formData = null;
+      formData.codbarra = '',
+      formData.custo =  '',
+      formData.estoque =  '',
+      formData.margem =  '',
+      formData.nome =  '',
+      formData.venda =  ''
+    
     handleCloseModal();
   };
 
