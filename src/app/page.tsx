@@ -7,21 +7,52 @@ export default function LoginPage() {
   const [identity, setIdentity] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(event:SyntheticEvent){
     event.preventDefault()
+    setIsLoading(true)
     
-    const result = await signIn('credentials',{
-      email:identity,
-      password,
-      redirect:false
-    })
+    const res = await fetch('https://treina1.delphosautomacao.com/api/collections/users/auth-with-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        identity: identity,
+        password: password
+      }).toString()
+      });
+      
 
-    if(result?.error){
-      console.log(result)
-      return
+    const user = await res.json();
+
+    //save the user in a local storage
+
+    if(res.status === 200){
+      const save = await localStorage.setItem('user', JSON.stringify(user))
+      //push to protuos
+      router.replace('/produtos')
     }
+
+    setIsLoading(false)
+
+    // if (res.status === 429) {
+    //   throw new Error('Too Many Requests');
+    // }
+
+    // if (!res.ok) {
+    //   return res.json();
+    // }
+
+    
+    // if (res.ok && user) {
+    //   user;
+
+    //   return user;
+    
+    // }
     // router.replace('/home')
   }
 
@@ -46,7 +77,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button className="bg-[#4de577] rounded-lg h-10" type="submit">
+            <button disabled={isLoading} className="bg-[#4de577] rounded-lg h-10  disabled:bg-inherit disabled:cursor-wait" type="submit">
               Log In
             </button>
             {error && <p className="text-red-500">{error}</p>}

@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-export default NextAuth({
+const handler = NextAuth({
 	providers: [
 		CredentialsProvider({
 			id: 'credentials',
@@ -22,18 +22,19 @@ export default NextAuth({
 					password: credentials?.password
 				};
 
-        const res = await fetch('https://treina1.delphosautomacao.com/api/collections/users/auth-with-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            identity: credentials?.email,
-            password: credentials?.password
-          })
-        });
+				const res = await fetch('https://treina1.delphosautomacao.com/api/collections/users/auth-with-password', {
+					method: 'POST',
+					headers: {
+					  'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: new URLSearchParams({
+					  identity: 'user1',
+					  password: '123456789'
+					}).toString()
+				  });
+				  
+				console.log(res)
 
-			
 				const user = await res.json();
 
 				if (res.status === 429) {
@@ -106,3 +107,5 @@ export default NextAuth({
 	},
 	debug: true
 });
+
+export { handler as GET, handler as POST }

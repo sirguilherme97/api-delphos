@@ -20,25 +20,40 @@ interface IProduct {
 }
 
 export default function Home({ accessToken }: { accessToken: string }) {
+  const [user, setUser] = useState(null) as any;
   const router = useRouter();
   const [products, setProducts] = useState<IProduct[]>([]);
 
   useEffect(() => {
     // Verifique se o token de acesso está disponível
-    if (!accessToken) {
+
+    //check if has local storage item user
+    const user = localStorage.getItem('user');
+
+    if (!user) {
       // Se não houver, redirecione de volta para a página de login
       router.push('/');
     } else {
       // Se houver, busque os produtos com o token de acesso
-      fetchProducts();
-    }
-  }, [accessToken]);
+       setUser(JSON.parse(user));
 
-  async function fetchProducts() {
+       fetchProducts(user.token);
+    }
+
+    // if (!accessToken) {
+    //   // Se não houver, redirecione de volta para a página de login
+    //   router.push('/');
+    // } else {
+    //   // Se houver, busque os produtos com o token de acesso
+    //   fetchProducts();
+    // }
+  }, []);
+
+  async function fetchProducts(token: string) {
     try {
       const response = await axios.get('https://treina1.delphosautomacao.com/api/collections/produtos/records', {
         headers: {
-          Authorization: `Bearer ${accessToken}`
+          Authorization: `Bearer ${token}`
         }
       });
       const data = response.data;
