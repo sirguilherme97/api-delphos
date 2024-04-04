@@ -142,9 +142,9 @@ export default function Home({ accessToken }: { accessToken: string }) {
               onClick={handleOpenModal}
               className='bg-[#4de577] rounded-md px-5 py-2 '> Criar Produto</button>
           </div>
-          <div className="flex flex-col items-center justify-center w-full h-auto gap-4">
+          <div className="flex flex-col lg:grid lg:grid-cols-2 items-center justify-center w-full h-auto gap-4">
             {products?.map((product) => (
-              <div key={product.id} className="w-full border p-4 rounded-md shadow-md">
+              <div key={product.id} className="w-full lg:col-span-1 border p-4 rounded-md shadow-md">
                 <h2 className="text-lg font-semibold">{product.nome}</h2>
                 <p>Código de Barras: {product.codbarra}</p>
                 <p>Preço de Venda: {product.venda}</p>

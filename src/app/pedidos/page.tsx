@@ -113,9 +113,9 @@ export default function Pedidos({ accessToken }: { accessToken: string }) {
                 className='bg-[#4de577] rounded-md px-5 py-2 '> Criar Pedido
               </button>
             </div>
-            <div className="flex flex-col items-center justify-center w-full h-auto gap-4">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 items-center justify-center w-full h-auto gap-4">
               {pedidos?.map((pedido) => (
-                <div key={pedido.id} className="w-full border p-4 rounded-md shadow-md">
+                <div key={pedido.id} className="w-full lg:col-span-1 border p-4 rounded-md shadow-md">
                   <h2 className="text-lg font-semibold">Pedido ID: {pedido.id}</h2>
                   <p>Acrescimo: {pedido.acrescimo}</p>
                   <p>Collection ID: {pedido.collectionId}</p>

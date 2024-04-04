@@ -45,7 +45,7 @@ const CreatePedidoModal = ({ isOpen, onClose, onCreate }: any) => {
 
   return (
     <div className="blur-none fixed inset-0 flex items-center justify-center z-50 overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
-      <div className="relative w-auto max-w-full p-6 mx-auto h-auto bg-white rounded-xl shadow-xl">
+      <div className="relative w-auto lg:w-1/3  max-w-full p-6 mx-auto h-auto bg-white rounded-xl shadow-xl">
         <div className="mt-2 text-center sm:mt-0 sm:ml-4 sm:text-left">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Criar Novo Pedido</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
