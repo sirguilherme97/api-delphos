@@ -1,4 +1,5 @@
 {
+  "proxy": "https://treina1.delphosautomacao.com/api",
   "name": "api-delphos",
   "version": "0.1.0",
   "private": true,

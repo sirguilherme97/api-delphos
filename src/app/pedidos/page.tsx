@@ -48,7 +48,7 @@ export default function Home({ accessToken }: { accessToken: string }) {
 
   async function fetchProducts(token: string) {
     try {
-      const response = await axios.get('https://treina1.delphosautomacao.com/api/collections/produtos/records', {
+      const response = await axios.get('https://treina1.delphosautomacao.com/api/collections/pedidos/records', {
         headers: {
           Authorization: `Bearer ${token}`
         }

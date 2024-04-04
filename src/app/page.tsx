@@ -58,26 +58,26 @@ export default function LoginPage() {
 
   return (
     <main className="flex flex-col items-center justify-start gap-5 bg-white w-full h-screen">
-      <header className="h-20 bg-gray-500 w-full flex flex-col items-center justify-center gap-2">
+      <header className="h-20 w-full flex flex-col items-center justify-center gap-2">
         <h1 className="text-[#4de577] font-bold text-2xl">Delphos Automação</h1>
       </header>
       <main className="flex flex-col gap-5 justify-start align-center">
-        <p className="text-center text-xl font-medium text-gray-900">Login - Treinamento API</p>
+        <p className="text-center text-lg font-medium text-gray-900">Login - Treinamento API</p>
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-2">
             <input
-              className="w-full h-10 rounded-lg px-2 bg-gray-400 text-white placeholder:text-white"
+              className="w-full h-10 rounded-lg px-2 bg-gray-200 text-gray-900 placeholder:text-gray-900"
               type="text" placeholder="Login"
               value={identity}
               onChange={(e) => setIdentity(e.target.value)}
             />
             <input
-              className="w-full h-10 rounded-lg px-2 bg-gray-400 text-white placeholder:text-white"
+              className="w-full h-10 rounded-lg px-2 bg-gray-200 text-gray-900 placeholder:text-gray-900"
               type="password" placeholder="Senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button disabled={isLoading} className="bg-[#4de577] rounded-lg h-10  disabled:bg-inherit disabled:cursor-wait" type="submit">
+            <button disabled={isLoading} className="bg-[hsl(137,75%,60%)] hover:brightness-90 rounded-lg h-10  disabled:bg-[hsl(137,75%,30%)] disabled:cursor-wait" type="submit">
               Log In
             </button>
             {error && <p className="text-red-500">{error}</p>}
