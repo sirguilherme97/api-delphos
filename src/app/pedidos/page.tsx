@@ -30,7 +30,7 @@ export default function Pedidos({ accessToken }: { accessToken: string }) {
   const router = useRouter();
   const [pedidos, setPedidos] = useState<IPedido[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true); // Estado de loading
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
 
@@ -55,6 +55,8 @@ export default function Pedidos({ accessToken }: { accessToken: string }) {
       }
     } catch (error) {
       console.error('Error fetching pedidos:', error);
+    } finally {
+      setIsLoading(false); // Definindo o estado de loading como falso quando os produtos são carregados
     }
   }
 
@@ -98,40 +100,46 @@ export default function Pedidos({ accessToken }: { accessToken: string }) {
           <a href="/produtos">Produtos</a>
           <a href="/pedidos">Pedidos</a>
         </div>
-        <div className="flex flex-col w-full items-center justify-center gap-4 px-5 py-5">
-          <p className='font-bold'>Página de Pedidos</p>
-          <div className=' flex items-center justify-center w-full'>
-            <button 
-              onClick={handleOpenModal}
-              className='bg-[#4de577] rounded-md px-5 py-2 '> Criar Pedido
-            </button>
+        {isLoading ? (
+          <div className='h-full'>
+            <h1 className='font-bold text-xl text-[#4de577]'>Carregando...</h1>
           </div>
-          <div className="flex flex-col items-center justify-center w-full h-auto gap-4">
-            {pedidos?.map((pedido) => (
-              <div key={pedido.id} className="w-full border p-4 rounded-md shadow-md">
-                <h2 className="text-lg font-semibold">Pedido ID: {pedido.id}</h2>
-                <p>Acrescimo: {pedido.acrescimo}</p>
-                <p>Collection ID: {pedido.collectionId}</p>
-                <p>Collection Name: {pedido.collectionName}</p>
-                <p>Data de Criação: {pedido.created}</p>
-                <p>Desconto: {pedido.desconto}</p>
-                <p>Subtotal: {pedido.subtotal}</p>
-                <p>Total: {pedido.total}</p>
-                <p>Atualizado: {pedido.updated}</p>
-                <p>Usuário: {pedido.user}</p>
-                <h3>Itens do Pedido:</h3>
-                {pedido.itens.map((item, index) => (
-                  <div key={index}>
-                    <p>Produto: {item.produto}</p>
-                    <p>Quantidade: {item.quantidade}</p>
-                    <p>Total: {item.total}</p>
-                    <p>Unitário: {item.unitario}</p>
-                  </div>
-                ))}
-              </div>
-            ))}
+        ) : (
+          <div className="flex flex-col w-full items-center justify-center gap-4 px-5">
+            <p className='font-bold'>Página de Pedidos</p>
+            <div className=' flex items-center justify-center w-full'>
+              <button
+                onClick={handleOpenModal}
+                className='bg-[#4de577] rounded-md px-5 py-2 '> Criar Pedido
+              </button>
+            </div>
+            <div className="flex flex-col items-center justify-center w-full h-auto gap-4">
+              {pedidos?.map((pedido) => (
+                <div key={pedido.id} className="w-full border p-4 rounded-md shadow-md">
+                  <h2 className="text-lg font-semibold">Pedido ID: {pedido.id}</h2>
+                  <p>Acrescimo: {pedido.acrescimo}</p>
+                  <p>Collection ID: {pedido.collectionId}</p>
+                  <p>Collection Name: {pedido.collectionName}</p>
+                  <p>Data de Criação: {pedido.created}</p>
+                  <p>Desconto: {pedido.desconto}</p>
+                  <p>Subtotal: {pedido.subtotal}</p>
+                  <p>Total: {pedido.total}</p>
+                  <p>Atualizado: {pedido.updated}</p>
+                  <p>Usuário: {pedido.user}</p>
+                  <h3>Itens do Pedido:</h3>
+                  {pedido.itens.map((item, index) => (
+                    <div key={index}>
+                      <p>Produto: {item.produto}</p>
+                      <p>Quantidade: {item.quantidade}</p>
+                      <p>Total: {item.total}</p>
+                      <p>Unitário: {item.unitario}</p>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
         <div className='w-full h-40 bg-gray-400 p-5'>
           <h1>Footer</h1>
         </div>

@@ -34,6 +34,8 @@ export default function LoginPage() {
       const save = await localStorage.setItem('user', JSON.stringify(user))
       //push to protuos
       router.replace('/produtos')
+    }else{
+      setError('Credenciais inválidas')
     }
 
     setIsLoading(false)

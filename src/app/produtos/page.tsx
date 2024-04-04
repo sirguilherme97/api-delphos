@@ -26,6 +26,7 @@ export default function Home({ accessToken }: { accessToken: string }) {
   const router = useRouter();
   const [products, setProducts] = useState<IProduct[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Estado de loading
 
   useEffect(() => {
     // Verifique se o token de acesso está disponível
@@ -61,6 +62,8 @@ export default function Home({ accessToken }: { accessToken: string }) {
       }
     } catch (error) {
       console.error('Error fetching products:', error);
+    }finally {
+      setIsLoading(false); // Definindo o estado de loading como falso quando os produtos são carregados
     }
   }
 
@@ -127,7 +130,11 @@ export default function Home({ accessToken }: { accessToken: string }) {
           <a href="/produtos">Produtos</a>
           <a href="/pedidos">Pedidos</a>
         </div>
-
+        {isLoading ? (
+          <div className='h-full'>
+            <h1 className='font-bold text-xl text-[#4de577]'>Carregando...</h1>
+          </div>
+        ): (
         <div className={`flex flex-col w-full items-center justify-center gap-4 px-5 `}>
           <p className='font-bold'>Página de Produtos</p>
           <div className=' flex items-center justify-center w-full'>
@@ -154,6 +161,7 @@ export default function Home({ accessToken }: { accessToken: string }) {
             ))}
           </div>
         </div>
+        )}
         <div className='w-full h-40 bg-gray-400 p-5'>
           <h1>Footer</h1>
         </div>
