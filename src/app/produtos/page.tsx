@@ -67,12 +67,12 @@ export default function Home({ accessToken }: { accessToken: string }) {
       <header className="h-20 bg-white w-full flex flex-col items-center justify-center gap-2">
         <h1 className="text-[#4de577] font-bold text-2xl">Delphos Automação</h1>
         <div className='flex gap-3 '>
-        <a href="/produtos">Produtos</a>
-        <a href="/pedidos">Pedidos</a>
+          <a href="/produtos">Produtos</a>
+          <a href="/pedidos">Pedidos</a>
         </div>
       </header>
-      <main className="flex flex-col w-full items-center justify-center gap-4 px-5">
-        <p>Bem vindo a Página principal</p>
+      <div className="flex flex-col w-full items-center justify-center gap-4 px-5">
+        <p>Página de Produtos</p>
         <div className="flex flex-col items-center justify-center w-full h-auto gap-4">
           {products?.map((product) => (
             <div key={product.id} className="w-full border p-4 rounded-md shadow-md">
@@ -91,7 +91,10 @@ export default function Home({ accessToken }: { accessToken: string }) {
             </div>
           ))}
         </div>
-      </main>
+      </div>
+      <div className='w-full h-40 bg-gray-400 p-5'>
+        <h1>Footer</h1>
+      </div>
     </main>
   );
 }

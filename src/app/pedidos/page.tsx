@@ -1,52 +1,47 @@
 'use client'
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 
-interface IProduct {
-  codbarra: string;
+interface IPedidoItem {
+  produto: string;
+  quantidade: number;
+  total: number;
+  unitario: number;
+}
+
+interface IPedido {
+  acrescimo: number;
   collectionId: string;
   collectionName: string;
   created: string;
-  custo: number;
-  estoque: number;
+  desconto: number;
   id: string;
-  itens: any;
-  margem: number;
-  nome: string;
+  itens: IPedidoItem[];
+  subtotal: number;
+  total: number;
   updated: string;
   user: string;
-  venda: number;
 }
 
 export default function Home({ accessToken }: { accessToken: string }) {
   const [user, setUser] = useState(null) as any;
   const [tokenAccess, setTokenAccess] = useState('');
   const router = useRouter();
-  const [products, setProducts] = useState<IProduct[]>([]);
+  const [pedidos, setPedidos] = useState<IPedido[]>([]);
 
   useEffect(() => {
-    // Verifique se o token de acesso está disponível
-    //check if has local storage item user
     const storedUser = localStorage.getItem('user');
 
     if (!storedUser) {
-      // Se não houver, redirecione de volta para a página de login
       router.push('/');
     } else {
-      // Se houver, busque os produtos com o token de acesso
       setUser(JSON.parse(storedUser));
-      console.log(user?.token)
-      fetchProducts(user?.token);
-    }
-
-    if (!storedUser) {
-      // Se não houver, redirecione de volta para a página de login
-      router.push('/');
+      fetchPedidos(user?.token);
     }
   }, [user?.token]);
 
-  async function fetchProducts(token: string) {
+  async function fetchPedidos(token: string) {
     try {
       const response = await axios.get('https://treina1.delphosautomacao.com/api/collections/pedidos/records', {
         headers: {
@@ -55,10 +50,10 @@ export default function Home({ accessToken }: { accessToken: string }) {
       });
       const data = response.data;
       if (data && data.items) {
-        setProducts(data.items);
+        setPedidos(data.items);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('Error fetching pedidos:', error);
     }
   }
 
@@ -67,31 +62,41 @@ export default function Home({ accessToken }: { accessToken: string }) {
       <header className="h-20 bg-white w-full flex flex-col items-center justify-center gap-2">
         <h1 className="text-[#4de577] font-bold text-2xl">Delphos Automação</h1>
         <div className='flex gap-3 '>
-        <a href="/produtos">Produtos</a>
-        <a href="/pedidos">Pedidos</a>
+          <a href="/produtos">Produtos</a>
+          <a href="/pedidos">Pedidos</a>
         </div>
       </header>
-      <main className="flex flex-col w-full items-center justify-center gap-4 px-5">
-        <p>Bem vindo a Página principal</p>
+      <div className="flex flex-col w-full items-center justify-center gap-4 px-5 py-5">
+        <p>Página de Pedidos</p>
         <div className="flex flex-col items-center justify-center w-full h-auto gap-4">
-          {products?.map((product) => (
-            <div key={product.id} className="w-full border p-4 rounded-md shadow-md">
-              <h2 className="text-lg font-semibold">{product.nome}</h2>
-              <p>Código de Barras: {product.codbarra}</p>
-              <p>Preço de Venda: {product.venda}</p>
-              <p>Collection ID: {product.collectionId}</p>
-              <p>Collection Name: {product.collectionName}</p>
-              <p>Data de Criação: {product.created}</p>
-              <p>Custo: {product.custo}</p>
-              <p>Estoque: {product.estoque}</p>
-              <p>ID: {product.id}</p>
-              <p>Margem: {product.margem}</p>
-              <p>Atualizado: {product.updated}</p>
-              <p>Usuário: {product.user}</p>
+          {pedidos?.map((pedido) => (
+            <div key={pedido.id} className="w-full border p-4 rounded-md shadow-md">
+              <h2 className="text-lg font-semibold">Pedido ID: {pedido.id}</h2>
+              <p>Acrescimo: {pedido.acrescimo}</p>
+              <p>Collection ID: {pedido.collectionId}</p>
+              <p>Collection Name: {pedido.collectionName}</p>
+              <p>Data de Criação: {pedido.created}</p>
+              <p>Desconto: {pedido.desconto}</p>
+              <p>Subtotal: {pedido.subtotal}</p>
+              <p>Total: {pedido.total}</p>
+              <p>Atualizado: {pedido.updated}</p>
+              <p>Usuário: {pedido.user}</p>
+              <h3>Itens do Pedido:</h3>
+              {pedido.itens.map((item, index) => (
+                <div key={index}>
+                  <p>Produto: {item.produto}</p>
+                  <p>Quantidade: {item.quantidade}</p>
+                  <p>Total: {item.total}</p>
+                  <p>Unitário: {item.unitario}</p>
+                </div>
+              ))}
             </div>
           ))}
         </div>
-      </main>
+      </div>
+      <div className='w-full h-40 bg-gray-400 p-5'>
+        <h1>Footer</h1>
+      </div>
     </main>
   );
 }
