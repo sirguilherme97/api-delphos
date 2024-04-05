@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 const CreatePedidoModal = ({ isOpen, onClose, onCreate }: any) => {
+  const initialItemState = { produto: '', quantidade: '', unitario: '', total: '' };
   const [formData, setFormData] = useState({
     subtotal: '',
     desconto: '',
     acrescimo: '',
     total: '',
-    itens: [{ produto: '', quantidade: '', unitario: '', total: '' }],
+    itens: [initialItemState],
     user: 'b6h6j6yezg7drz1'
   });
+
+  // Referência para a div que contém os itens do pedido
+  const itemsContainerRef = useRef<HTMLDivElement>(null);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -22,6 +26,16 @@ const CreatePedidoModal = ({ isOpen, onClose, onCreate }: any) => {
     setFormData({ ...formData, itens: updatedItens });
   };
 
+  const handleAddItem = () => {
+    setFormData({ ...formData, itens: [...formData.itens, initialItemState] });
+  };
+
+  const handleRemoveItem = (index: number) => {
+    const updatedItens = [...formData.itens];
+    updatedItens.splice(index, 1);
+    setFormData({ ...formData, itens: updatedItens });
+  };
+
   const handleSubmit = (e: any) => {
     e.preventDefault();
     onCreate(formData);
@@ -30,25 +44,28 @@ const CreatePedidoModal = ({ isOpen, onClose, onCreate }: any) => {
 
   const handleCloseModal = () => {
     onClose();
-    // Limpar os campos do formulário após fechar o modal
+    // Resetar o número de itens para 1 e limpar os campos
     setFormData({
       subtotal: '',
       desconto: '',
       acrescimo: '',
       total: '',
-      itens: [{ produto: '', quantidade: '', unitario: '', total: '' }],
+      itens: [initialItemState],
       user: 'b6h6j6yezg7drz1'
     });
   };
+
+
 
   if (!isOpen) return null;
 
   return (
     <div className="blur-none fixed inset-0 flex items-center justify-center z-50 overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
-      <div className="relative w-auto lg:w-1/3  max-w-full p-6 mx-auto h-auto bg-white rounded-xl shadow-xl">
+      <div className="relative w-auto lg:w-1/3 max-w-full p-6 mx-auto h-auto bg-white rounded-xl shadow-xl">
         <div className="mt-2 text-center sm:mt-0 sm:ml-4 sm:text-left">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Criar Novo Pedido</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Campos de formulário existentes */}
             <div>
               <label htmlFor="subtotal" className="block text-sm font-medium text-gray-700">Subtotal:</label>
               <input
@@ -93,10 +110,18 @@ const CreatePedidoModal = ({ isOpen, onClose, onCreate }: any) => {
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
-            <div className="space-y-4">
+            {/* Lista de itens do pedido */}
               <h4 className="text-lg font-medium text-gray-900 mb-2">Itens do Pedido</h4>
+            <div ref={itemsContainerRef} className="space-y-4 overflow-y-auto max-h-80">
               {formData.itens.map((item: any, index: number) => (
                 <div key={index}>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem(index)}
+                    className="float-right text-red-600 focus:outline-none"
+                  >
+                    X
+                  </button>
                   <label htmlFor={`produto-${index}`} className="block text-sm font-medium text-gray-700">Produto:</label>
                   <input
                     id={`produto-${index}`}
@@ -136,13 +161,20 @@ const CreatePedidoModal = ({ isOpen, onClose, onCreate }: any) => {
                 </div>
               ))}
             </div>
+            <button
+              type="button"
+              onClick={handleAddItem}
+              className="w-full py-2 px-4 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:bg-gray-300"
+            >
+              Adicionar Item
+            </button>
+            {/* Botões de envio e cancelamento */}
             <button type="submit" className="w-full py-2 px-4 bg-[#4de577] text-black rounded-md hover:bg-[#4de577]/80 focus:outline-none focus:bg-[#4de577]/80">Criar Pedido</button>
             <button onClick={onClose} className="w-full py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600/90 focus:outline-none focus:bg-gray-600/90">Cancelar</button>
           </form>
         </div>
       </div>
     </div>
-  );
-};
-
+);
+              }
 export default CreatePedidoModal;

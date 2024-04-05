@@ -26,18 +26,13 @@ export default function Home({ accessToken }: { accessToken: string }) {
   const router = useRouter();
   const [products, setProducts] = useState<IProduct[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // Estado de loading
+  const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
-    // Verifique se o token de acesso está disponível
-    //check if has local storage item user
     const storedUser = localStorage.getItem('user');
-
     if (!storedUser) {
-      // Se não houver, redirecione de volta para a página de login
       router.push('/');
     } else {
-      // Se houver, busque os produtos com o token de acesso
       setUser(JSON.parse(storedUser));
       console.log(user?.token)
       fetchProducts(user?.token);
@@ -140,7 +135,7 @@ export default function Home({ accessToken }: { accessToken: string }) {
           <div className=' flex items-center justify-center w-full'>
             <button
               onClick={handleOpenModal}
-              className='bg-[#4de577] rounded-md px-5 py-2 '> Criar Produto</button>
+              className='bg-[#4de577] rounded-md px-5 py-2 '>Criar Produto</button>
           </div>
           <div className="flex flex-col lg:grid lg:grid-cols-2 items-center justify-center w-full h-auto gap-4">
             {products?.map((product) => (
