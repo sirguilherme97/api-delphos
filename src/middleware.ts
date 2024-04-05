@@ -1,22 +1,9 @@
-/* eslint-disable */
-import { NextRequest, NextResponse } from "next/server";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*", // allow requests from any other server
-};
-
-export function middleware(request: NextRequest) {
-  if (request.method === "OPTIONS") {
-    return NextResponse.json({}, { headers: corsHeaders });
-  }
-  const response = NextResponse.next();
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    response.headers.append(key, value);
-  });
-
-  return response;
-}
-
+import NextAuth from 'next-auth';
+import { authConfig } from '../auth.config';
+ 
+export default NextAuth(authConfig).auth;
+ 
 export const config = {
-  matcher: "/(.*)",
+  // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
+  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
 };

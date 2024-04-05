@@ -2,6 +2,8 @@
 import { SyntheticEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import { AuthError } from 'next-auth';
+import email from 'next-auth/providers/email';
 
 export default function LoginPage() {
   const [identity, setIdentity] = useState('');
@@ -13,47 +15,63 @@ export default function LoginPage() {
   async function handleSubmit(event:SyntheticEvent){
     event.preventDefault()
     setIsLoading(true)
+
+    const formData = {
+      email: identity,
+      password: password
+    }
+
+    try {
+      await signIn('credentials', 
+      formData
+      
+      )
+        
+   
+    } catch (error) {
+      if (error instanceof AuthError) {
+        switch (error.type) {
+          case 'CredentialsSignin':
+            return 'Invalid credentials.';
+          default:
+            return 'Something went wrong.';
+        }
+      }
+      throw error;
+    }
     
-    const res = await fetch('https://treina1.delphosautomacao.com/api/collections/users/auth-with-password', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        identity: identity,
-        password: password
-      }).toString()
-      });
+
+    
+    // const res = await fetch('https://treina1.delphosautomacao.com/api/collections/users/auth-with-password', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //   },
+    //   body: new URLSearchParams({
+    //     identity: identity,
+    //     password: password
+    //   }).toString()
+    //   });
       
 
-    const user = await res.json();
+
+// ~    const user = await res.json();
 
     //save the user in a local storage
 
-    if(res.status === 200){
-      const save = await localStorage.setItem('user', JSON.stringify(user))
-      //push to protuos
-      router.replace('/produtos')
-    }
+    // if(res.status === 200){
+    //   const save = await localStorage.setItem('user', JSON.stringify(user))
+    //   //push to protuos
+    //   router.replace('/produtos')
+    // }
 
-    setIsLoading(false)
+    // setIsLoading(false)
 
     // if (res.status === 429) {
     //   throw new Error('Too Many Requests');
     // }
 
-    // if (!res.ok) {
-    //   return res.json();
-    // }
 
-    
-    // if (res.ok && user) {
-    //   user;
-
-    //   return user;
-    
-    // }
-    // router.replace('/home')
   }
 
   return (
