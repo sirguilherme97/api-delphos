@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const CreateProductModal = ({ isOpen, onClose, onCreate }: any) => {
+const CreateProductModal = ({ isOpen, onClose, onCreate, existingProducts }: any) => {
   const [formData, setFormData] = useState({
     codbarra: '',
     custo: '',
@@ -12,11 +12,29 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }: any) => {
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    let updatedFormData = { ...formData, [name]: value };
+    
+    // Calculating 'venda' based on 'custo' and 'margem'
+    if (name === 'custo' || name === 'margem') {
+      const custo = parseFloat(updatedFormData.custo);
+      const margem = parseFloat(updatedFormData.margem);
+      if (!isNaN(custo) && !isNaN(margem)) {
+        updatedFormData.venda = (custo * (1 + margem / 100)).toFixed(2);
+      }
+    }
+
+    setFormData(updatedFormData);
   };
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    // Verifying if the product name or codebar already exists
+    const isNameExists = existingProducts.some((product: any) => product.nome === formData.nome);
+    const isCodbarraExists = existingProducts.some((product: any) => product.codbarra === formData.codbarra);
+    if (isNameExists || isCodbarraExists) {
+      alert("Nome ou Código de Barras já existente. Por favor, insira valores únicos.");
+      return;
+    }
     onCreate(formData);
   };
 
@@ -28,7 +46,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }: any) => {
         <div className="mt-2 text-center sm:mt-0 sm:ml-4 sm:text-left">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Criar Novo Produto</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+            <div>
               <label htmlFor="nome" className="block text-sm font-medium text-gray-700">Nome:</label>
               <input
                 id="nome"
@@ -37,6 +55,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }: any) => {
                 value={formData.nome}
                 onChange={handleChange}
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                required
               />
             </div>
             <div>
@@ -48,6 +67,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }: any) => {
                 value={formData.codbarra}
                 onChange={handleChange}
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                required
               />
             </div>
             <div>
@@ -59,6 +79,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }: any) => {
                 value={formData.custo}
                 onChange={handleChange}
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                required
               />
             </div>
             <div>
@@ -70,6 +91,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }: any) => {
                 value={formData.estoque}
                 onChange={handleChange}
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                required
               />
             </div>
             <div>
@@ -81,6 +103,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }: any) => {
                 value={formData.margem}
                 onChange={handleChange}
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                required
               />
             </div>
             
@@ -93,6 +116,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }: any) => {
                 value={formData.venda}
                 onChange={handleChange}
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                required
               />
             </div>
             <button type="submit" className="w-full py-2 px-4 bg-[#4de577] text-black rounded-md hover:bg-[#4de577]/80 focus:outline-none focus:bg-[#4de577]/80">Criar Produto</button>

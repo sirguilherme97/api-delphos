@@ -1,61 +1,97 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const CreatePedidoModal = ({ isOpen, onClose, onCreate }: any) => {
-  const initialItemState = { produto: '', quantidade: '', unitario: '', total: '' };
+const CreatePedidoModal = ({ isOpen, onClose, onCreate, existingProducts }) => {
+  const initialItemState = { produtoId: '', quantidade: '', unitario: '', totalItem: '' };
   const [formData, setFormData] = useState({
-    subtotal: '',
-    desconto: '',
-    acrescimo: '',
-    total: '',
+    subtotal: 0,
+    desconto: 0,
+    acrescimo: 0,
+    total: 0,
     itens: [initialItemState],
     user: 'b6h6j6yezg7drz1'
   });
 
-  // Referência para a div que contém os itens do pedido
-  const itemsContainerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const calculateTotal = () => {
+      let total = formData.subtotal;
+      const { desconto, acrescimo } = formData;
 
-  const handleChange = (e: any) => {
+      if (desconto !== 0) {
+        total -= total * (desconto / 100);
+      }
+
+      if (acrescimo !== 0) {
+        total += total * (acrescimo / 100);
+      }
+
+      return parseFloat(total.toFixed(2));
+    };
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      total: calculateTotal(),
+    }));
+  }, [formData.subtotal, formData.desconto, formData.acrescimo]);
+
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prevFormData) => ({ ...prevFormData, [name]: parseFloat(value) || 0 }));
   };
 
-  const handleItemChange = (e: any, index: number) => {
+  const handleItemChange = (e, index) => {
     const { name, value } = e.target;
-    const updatedItens = [...formData.itens];
-    updatedItens[index][name] = value;
-    setFormData({ ...formData, itens: updatedItens });
+
+    setFormData((prevFormData) => {
+      const updatedItens = [...prevFormData.itens];
+      updatedItens[index][name] = value;
+
+      if (name === 'produtoId') {
+        const produto = existingProducts.find((p) => p.id === value);
+        if (produto) {
+          updatedItens[index].unitario = produto.venda.toString();
+        }
+      }
+
+      const quantidade = parseInt(updatedItens[index].quantidade) || 0;
+      const unitario = parseFloat(updatedItens[index].unitario) || 0;
+      updatedItens[index].totalItem = (quantidade * unitario).toFixed(2);
+
+      const subtotal = updatedItens.reduce((acc, item) => acc + parseFloat(item.totalItem), 0);
+
+      return { ...prevFormData, itens: updatedItens, subtotal };
+    });
   };
 
   const handleAddItem = () => {
-    setFormData({ ...formData, itens: [...formData.itens, initialItemState] });
+    setFormData((prevFormData) => ({ ...prevFormData, itens: [...prevFormData.itens, initialItemState] }));
   };
 
-  const handleRemoveItem = (index: number) => {
-    const updatedItens = [...formData.itens];
-    updatedItens.splice(index, 1);
-    setFormData({ ...formData, itens: updatedItens });
+  const handleRemoveItem = (index) => {
+    setFormData((prevFormData) => {
+      const updatedItens = [...prevFormData.itens];
+      updatedItens.splice(index, 1);
+      return { ...prevFormData, itens: updatedItens };
+    });
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+
     onCreate(formData);
     handleCloseModal();
   };
 
   const handleCloseModal = () => {
     onClose();
-    // Resetar o número de itens para 1 e limpar os campos
     setFormData({
-      subtotal: '',
-      desconto: '',
-      acrescimo: '',
-      total: '',
+      subtotal: 0,
+      desconto: 0,
+      acrescimo: 0,
+      total: 0,
       itens: [initialItemState],
       user: 'b6h6j6yezg7drz1'
     });
   };
-
-
 
   if (!isOpen) return null;
 
@@ -65,116 +101,54 @@ const CreatePedidoModal = ({ isOpen, onClose, onCreate }: any) => {
         <div className="mt-2 text-center sm:mt-0 sm:ml-4 sm:text-left">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Criar Novo Pedido</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Campos de formulário existentes */}
-            <div>
-              <label htmlFor="subtotal" className="block text-sm font-medium text-gray-700">Subtotal:</label>
-              <input
-                id="subtotal"
-                type="number"
-                name="subtotal"
-                value={formData.subtotal}
-                onChange={handleChange}
-                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="desconto" className="block text-sm font-medium text-gray-700">Desconto:</label>
-              <input
-                id="desconto"
-                type="number"
-                name="desconto"
-                value={formData.desconto}
-                onChange={handleChange}
-                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="acrescimo" className="block text-sm font-medium text-gray-700">Acréscimo:</label>
-              <input
-                id="acrescimo"
-                type="number"
-                name="acrescimo"
-                value={formData.acrescimo}
-                onChange={handleChange}
-                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="total" className="block text-sm font-medium text-gray-700">Total:</label>
-              <input
-                id="total"
-                type="number"
-                name="total"
-                value={formData.total}
-                onChange={handleChange}
-                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-            {/* Lista de itens do pedido */}
-              <h4 className="text-lg font-medium text-gray-900 mb-2">Itens do Pedido</h4>
-            <div ref={itemsContainerRef} className="space-y-4 overflow-y-auto max-h-80">
-              {formData.itens.map((item: any, index: number) => (
+            <h4 className="text-lg font-medium text-gray-900 mb-2">Itens do Pedido</h4>
+            <div className="space-y-4 overflow-y-auto max-h-80">
+              {formData.itens.map((item, index) => (
                 <div key={index}>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveItem(index)}
-                    className="float-right text-red-600 focus:outline-none"
-                  >
-                    X
-                  </button>
+                  <button type="button" onClick={() => handleRemoveItem(index)} className="float-right text-red-600 focus:outline-none font-bold">X</button>
                   <label htmlFor={`produto-${index}`} className="block text-sm font-medium text-gray-700">Produto:</label>
-                  <input
-                    id={`produto-${index}`}
-                    type="text"
-                    name="produto"
-                    value={item.produto}
-                    onChange={(e) => handleItemChange(e, index)}
-                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  />
+                  <select id={`produto-${index}`} name="produtoId" value={item.produtoId} onChange={(e) => handleItemChange(e, index)} className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                    <option value="">Selecione um produto</option>
+                    {existingProducts.map((produto) => (
+                      <option key={produto.id} value={produto.id}>{produto.nome}</option>
+                    ))}
+                  </select>
                   <label htmlFor={`quantidade-${index}`} className="block text-sm font-medium text-gray-700">Quantidade:</label>
-                  <input
-                    id={`quantidade-${index}`}
-                    type="number"
-                    name="quantidade"
-                    value={item.quantidade}
-                    onChange={(e) => handleItemChange(e, index)}
-                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  />
+                  <input id={`quantidade-${index}`} type="number" name="quantidade" value={item.quantidade} onChange={(e) => handleItemChange(e, index)} className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required />
                   <label htmlFor={`unitario-${index}`} className="block text-sm font-medium text-gray-700">Preço Unitário:</label>
-                  <input
-                    id={`unitario-${index}`}
-                    type="number"
-                    name="unitario"
-                    value={item.unitario}
-                    onChange={(e) => handleItemChange(e, index)}
-                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  />
+                  <input id={`unitario-${index}`} type="number" name="unitario" value={item.unitario} readOnly className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required />
                   <label htmlFor={`total-item-${index}`} className="block text-sm font-medium text-gray-700">Total do Item:</label>
-                  <input
-                    id={`total-item-${index}`}
-                    type="number"
-                    name="total"
-                    value={item.total}
-                    onChange={(e) => handleItemChange(e, index)}
-                    className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  />
+                  <input id={`total-item-${index}`} type="number" name="totalItem" value={item.totalItem} readOnly className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required />
                 </div>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={handleAddItem}
-              className="w-full py-2 px-4 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:bg-gray-300"
-            >
-              Adicionar Item
-            </button>
-            {/* Botões de envio e cancelamento */}
+            <div className=' py-2 pt-10'>
+              <div>
+                <label htmlFor="subtotal" className="block text-sm font-medium text-gray-700">Subtotal:</label>
+                <p>{formData.subtotal.toFixed(2)}</p>
+                {/* <input id="subtotal" type="number" name="subtotal" value={formData.subtotal} onChange={handleChange} required /> */}
+              </div>
+              <div>
+                <label htmlFor="desconto" className="block text-sm font-medium text-gray-700">Desconto (%):</label>
+                <input id="desconto" type="number" name="desconto" value={formData.desconto} onChange={handleChange} required />
+              </div>
+              <div>
+                <label htmlFor="acrescimo" className="block text-sm font-medium text-gray-700">Acréscimo (%):</label>
+                <input id="acrescimo" type="number" name="acrescimo" value={formData.acrescimo} onChange={handleChange} required />
+              </div>
+              <div>
+                <label htmlFor="total" className="block text-sm font-medium text-gray-700">Total:</label>
+                <p>{formData.total.toFixed(2)}</p>
+              </div>
+            </div>
+            <button type="button" onClick={handleAddItem} className="w-full py-2 px-4 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:bg-gray-300">Adicionar Produto</button>
             <button type="submit" className="w-full py-2 px-4 bg-[#4de577] text-black rounded-md hover:bg-[#4de577]/80 focus:outline-none focus:bg-[#4de577]/80">Criar Pedido</button>
             <button onClick={onClose} className="w-full py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600/90 focus:outline-none focus:bg-gray-600/90">Cancelar</button>
           </form>
         </div>
       </div>
     </div>
-);
-              }
+  );
+};
+
 export default CreatePedidoModal;

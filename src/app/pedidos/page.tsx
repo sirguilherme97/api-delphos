@@ -29,8 +29,45 @@ export default function Pedidos({ accessToken }: { accessToken: string }) {
   const [user, setUser] = useState(null) as any;
   const router = useRouter();
   const [pedidos, setPedidos] = useState<IPedido[]>([]);
+  const [products, setProducts] = useState<any>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Estado de loading
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+
+    if (!storedUser) {
+      router.push('/');
+    } else {
+      setUser(JSON.parse(storedUser));
+      console.log(user?.token)
+      fetchProducts(user?.token);
+    }
+
+    if (!storedUser) {
+      // Se não houver, redirecione de volta para a página de login
+      router.push('/');
+    }
+  }, [user?.token]);
+
+  async function fetchProducts(token: string) {
+    try {
+      const response = await axios.get('https://treina1.delphosautomacao.com/api/collections/produtos/records', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = response.data;
+      if (data && data.items) {
+        setProducts(data.items);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setIsLoading(false); // Definindo o estado de loading como falso quando os produtos são carregados
+    }
+  }
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
 
@@ -91,6 +128,7 @@ export default function Pedidos({ accessToken }: { accessToken: string }) {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onCreate={createPedido}
+        existingProducts={products}
       />
       <main className={`flex flex-col items-center justify-start gap-5 bg-white w-full h-screen ${isModalOpen ? 'blur opacity-35' : 'blur-none'}`}>
         <header className="h-20 min-h-20 bg-white w-full flex flex-col items-center justify-center gap-2">
