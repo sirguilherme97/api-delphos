@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from 'react';
 
-const CreatePedidoModal = ({ isOpen, onClose, onCreate, existingProducts }) => {
+interface Item {
+  produtoId: string;
+  quantidade: string;
+  unitario: string;
+  totalItem: string;
+}
+
+interface FormData {
+  subtotal: number;
+  desconto: number;
+  acrescimo: number;
+  total: number;
+  itens: Item[];
+  user: string;
+}
+
+const CreatePedidoModal = ({ isOpen, onClose, onCreate, existingProducts }:any) => {
   const initialItemState = { produtoId: '', quantidade: '', unitario: '', totalItem: '' };
   const [formData, setFormData] = useState({
     subtotal: 0,
@@ -33,32 +49,40 @@ const CreatePedidoModal = ({ isOpen, onClose, onCreate, existingProducts }) => {
     }));
   }, [formData.subtotal, formData.desconto, formData.acrescimo]);
 
-  const handleChange = (e) => {
+  const handleChange = (e:any) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({ ...prevFormData, [name]: parseFloat(value) || 0 }));
   };
 
-  const handleItemChange = (e, index) => {
+  const handleItemChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>, index: number) => {
     const { name, value } = e.target;
-
+    
     setFormData((prevFormData) => {
       const updatedItens = [...prevFormData.itens];
-      updatedItens[index][name] = value;
-
-      if (name === 'produtoId') {
-        const produto = existingProducts.find((p) => p.id === value);
-        if (produto) {
-          updatedItens[index].unitario = produto.venda.toString();
+    
+      // Check if the name exists in the Item interface before updating
+      if (name in updatedItens[index]) {
+        updatedItens[index][name as keyof Item] = value;
+    
+        if (name === 'produtoId') {
+          const produto = existingProducts.find((p: any) => p.id === value);
+          if (produto) {
+            updatedItens[index].unitario = produto.venda.toString();
+          }
         }
+    
+        const quantidade = parseInt(updatedItens[index].quantidade) || 0;
+        const unitario = parseFloat(updatedItens[index].unitario) || 0;
+        updatedItens[index].totalItem = (quantidade * unitario).toFixed(2);
+    
+        const subtotal = updatedItens.reduce((acc, item) => acc + parseFloat(item.totalItem), 0);
+    
+        return { ...prevFormData, itens: updatedItens, subtotal };
+      } else {
+        // Handle error case where name doesn't match any property in Item
+        console.error(`Property '${name}' does not exist in Item interface.`);
+        return prevFormData;
       }
-
-      const quantidade = parseInt(updatedItens[index].quantidade) || 0;
-      const unitario = parseFloat(updatedItens[index].unitario) || 0;
-      updatedItens[index].totalItem = (quantidade * unitario).toFixed(2);
-
-      const subtotal = updatedItens.reduce((acc, item) => acc + parseFloat(item.totalItem), 0);
-
-      return { ...prevFormData, itens: updatedItens, subtotal };
     });
   };
 
@@ -66,7 +90,7 @@ const CreatePedidoModal = ({ isOpen, onClose, onCreate, existingProducts }) => {
     setFormData((prevFormData) => ({ ...prevFormData, itens: [...prevFormData.itens, initialItemState] }));
   };
 
-  const handleRemoveItem = (index) => {
+  const handleRemoveItem = (index:any) => {
     setFormData((prevFormData) => {
       const updatedItens = [...prevFormData.itens];
       updatedItens.splice(index, 1);
@@ -74,7 +98,7 @@ const CreatePedidoModal = ({ isOpen, onClose, onCreate, existingProducts }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e:any) => {
     e.preventDefault();
 
     onCreate(formData);
@@ -109,7 +133,7 @@ const CreatePedidoModal = ({ isOpen, onClose, onCreate, existingProducts }) => {
                   <label htmlFor={`produto-${index}`} className="block text-sm font-medium text-gray-700">Produto:</label>
                   <select id={`produto-${index}`} name="produtoId" value={item.produtoId} onChange={(e) => handleItemChange(e, index)} className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
                     <option value="">Selecione um produto</option>
-                    {existingProducts.map((produto) => (
+                    {existingProducts.map((produto:any) => (
                       <option key={produto.id} value={produto.id}>{produto.nome}</option>
                     ))}
                   </select>

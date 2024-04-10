@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation'
 import CreateProductModal from '../components/ModalProduct';
-
+import Cookies from 'js-cookie';
 
 interface IProduct {
   codbarra: string;
@@ -21,13 +21,21 @@ interface IProduct {
   venda: number;
 }
 
-export default function Home({ accessToken }: { accessToken: string }) {
+export default function Home() {
   const [user, setUser] = useState(null) as any;
   const router = useRouter();
   const [products, setProducts] = useState<IProduct[]>([]);
   const [existingProducts, setExistingProducts] = useState<IProduct[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  function setProductCookie(productData:any) {
+    Cookies.set('product', JSON.stringify(productData)); // Convertendo objeto para string antes de salvar
+  }
+
+  function deleteProductCookie() {
+    Cookies.remove('product');
+  }
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -43,6 +51,14 @@ export default function Home({ accessToken }: { accessToken: string }) {
     if (!storedUser) {
       // Se não houver, redirecione de volta para a página de login
       router.push('/');
+    }
+
+    // Verificar se há um cookie de produto pendente
+    const productDataString = Cookies.get('product');
+    if (productDataString) {
+      const productData = JSON.parse(productDataString); // Convertendo string de volta para objeto
+      // Enviar os dados do produto quando a conexão estiver disponível novamente
+      createProduct(productData);
     }
   }, [user?.token]);
 
@@ -76,6 +92,10 @@ export default function Home({ accessToken }: { accessToken: string }) {
         user: 'b6h6j6yezg7drz1',
         venda: formData.venda
       };
+
+      // Armazenar os dados do produto em um cookie
+      setProductCookie(newProduct);
+
       const response = await axios.post('https://treina1.delphosautomacao.com/api/collections/produtos/records', newProduct, {
         headers: {
           Authorization: `Bearer ${user?.token}`
@@ -84,12 +104,16 @@ export default function Home({ accessToken }: { accessToken: string }) {
 
       console.log('Novo produto criado:', response.data);
 
+      // Excluir o cookie após a criação bem-sucedida do produto
+      deleteProductCookie();
+
       // Atualize a lista de produtos após criar o novo produto
       fetchProducts(user?.token);
     } catch (error) {
       console.error('Erro ao criar produto:', error);
     }
   }
+
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -109,7 +133,6 @@ export default function Home({ accessToken }: { accessToken: string }) {
       formData.margem = '',
       formData.nome = '',
       formData.venda = ''
-
     handleCloseModal();
   };
 
@@ -121,7 +144,6 @@ export default function Home({ accessToken }: { accessToken: string }) {
         onCreate={handleCreateProduct}
         existingProducts={products} // Passando a lista de produtos como existingProducts
       />
-
       <main className={`flex flex-col items-center justify-start gap-5 bg-white w-full h-screen ${isModalOpen ? 'blur opacity-35' : 'blur-none'}`}>
         <header className="h-20 min-h-20 bg-white w-full flex flex-col items-center justify-center gap-2">
           <h1 className="text-[#4de577] font-bold text-2xl">Delphos Automação</h1>

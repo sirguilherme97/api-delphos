@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import CreatePedidoModal from '../components/ModalPedido';
+import Cookies from 'js-cookie';
 
 interface IPedidoItem {
   produto: string;
@@ -25,13 +26,22 @@ interface IPedido {
   user: string;
 }
 
-export default function Pedidos({ accessToken }: { accessToken: string }) {
+export default function Pedidos() {
   const [user, setUser] = useState(null) as any;
   const router = useRouter();
   const [pedidos, setPedidos] = useState<IPedido[]>([]);
   const [products, setProducts] = useState<any>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Estado de loading
+
+
+  function setPedidoCookie(pedidoData:any) {
+    Cookies.set('pedido', JSON.stringify(pedidoData));
+  }
+  
+  function deletePedidoCookie() {
+    Cookies.remove('pedido');
+  }
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -70,12 +80,20 @@ export default function Pedidos({ accessToken }: { accessToken: string }) {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-
+  
     if (!storedUser) {
       router.push('/');
     } else {
       setUser(JSON.parse(storedUser));
       fetchPedidos(user?.token);
+    }
+  
+    // Verificar se há um cookie de pedido pendente
+    const pedidoDataString = Cookies.get('pedido');
+    if (pedidoDataString) {
+      const pedidoData = JSON.parse(pedidoDataString);
+      // Enviar os dados do pedido quando a conexão estiver disponível novamente
+      createPedido(pedidoData);
     }
   }, [user?.token]);
 
@@ -99,14 +117,20 @@ export default function Pedidos({ accessToken }: { accessToken: string }) {
 
   async function createPedido(formData: any) {
     try {
+      // Salvar o pedido em um cookie antes de enviar
+      setPedidoCookie(formData);
+  
       const response = await axios.post('https://treina1.delphosautomacao.com/api/collections/pedidos/records', formData, {
         headers: {
           Authorization: `Bearer ${user?.token}`
         }
       });
-
+  
       console.log('Novo pedido criado:', response.data);
-
+  
+      // Excluir o cookie após a criação bem-sucedida do pedido
+      deletePedidoCookie();
+  
       // Atualize a lista de pedidos após criar o novo pedido
       fetchPedidos(user?.token);
     } catch (error) {
@@ -185,3 +209,4 @@ export default function Pedidos({ accessToken }: { accessToken: string }) {
     </>
   );
 }
+
