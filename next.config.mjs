@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+
+
 import {
   PHASE_DEVELOPMENT_SERVER,
   PHASE_PRODUCTION_BUILD,
@@ -7,6 +9,7 @@ import {
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: "standalone",  
 };
 
 const nextConfigFunction = async (phase) => {

@@ -1,0 +1,12 @@
+version: '3'
+services:  
+  delphos-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: delphosautomacao/app-treina1      
+    # volumes:
+      # - .:/app
+      # - /app/node_modules
+    ports:
+      - '${APP_PORT:-3000}:3000'
