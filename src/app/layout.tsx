@@ -1,8 +1,6 @@
 import type { Metadata,Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import NextAuthProvider from "@/providers/sessionProvider";
-import SessionWrapper from '../providers/SessionWrapper'
 
 const APP_NAME = "Delphos Soluções API";
 const APP_DEFAULT_TITLE = "Delphos Soluções API ";
@@ -56,8 +54,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <SessionWrapper>
-    <NextAuthProvider>
     <html lang="pt-BR">
      
         <body className={inter.className}>
@@ -65,8 +61,6 @@ export default function RootLayout({
         </body>
     
     </html>
-    </NextAuthProvider>
-      </SessionWrapper>
   );
 }
 

@@ -1,8 +1,7 @@
 'use client'
-import {unstable_noStore as noStore} from 'next/cache'
+
 import { SyntheticEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   // noStore()
